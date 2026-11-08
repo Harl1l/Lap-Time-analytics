@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Sessions · HG Lap Analytics{% endblock %}
+{% block crumb %}SESSIONS{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR DATA LIBRARY</div><h1>Session <em>history</em></h1><p class="muted">Every run, every lap, all in one place.</p></div><a class="button button-primary" href="{{ url_for('new_session') }}">＋ New session</a></div>
+<div class="panel table-panel">
+  <div class="panel-header"><div><div class="eyebrow">SESSION ARCHIVE</div><h2>{{ sessions|length }} saved session{{ '' if sessions|length == 1 else 's' }}</h2></div><a class="button button-ghost button-small" href="{{ url_for('import_csv') }}">⇧ Import CSV</a></div>
+  {% if sessions %}<div class="table-scroll"><table><thead><tr><th>SESSION</th><th>TRACK</th><th>DISCIPLINE</th><th>DATE</th><th>DRIVERS</th><th>LAPS</th><th>BEST LAP</th><th></th></tr></thead><tbody>
+  {% for s in sessions %}<tr><td><a class="table-primary" href="{{ url_for('session_detail', session_id=s.id) }}">{{ s.name }}</a><small class="table-sub">{{ s.conditions or 'No conditions recorded' }}</small></td><td>{{ s.track or '—' }}</td><td><span class="badge">{{ s.discipline }}</span></td><td>{{ s.session_date }}</td><td>{{ s.drivers }}</td><td>{{ s.lap_count }}</td><td class="mono best-cell">{{ s.best_time }}</td><td><a class="row-arrow" href="{{ url_for('session_detail', session_id=s.id) }}">↗</a></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty-state"><div class="empty-graphic">◷</div><h3>No sessions in the archive</h3><p>Create a session manually or import timing data from CSV.</p><div class="button-row"><a class="button button-primary" href="{{ url_for('new_session') }}">Create session</a><a class="button button-ghost" href="{{ url_for('import_csv') }}">Import CSV</a></div></div>{% endif %}
+</div>
+{% endblock %}

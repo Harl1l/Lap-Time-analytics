@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Image OCR Import · HG Lap Analytics{% endblock %}
+{% block crumb %}IMAGE IMPORT{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-line"></span> TIMING SHEET READER</div>
+    <h1>Import from a <em>photo</em></h1>
+    <p class="muted">Upload a screenshot or photo of a karting / motorsport timing sheet. OCR will suggest rows for you to review before anything is saved.</p>
+  </div>
+  <a class="button button-ghost" href="{{ url_for('import_csv') }}">Import CSV instead ↗</a>
+</div>
+<div class="split-layout">
+  <form class="panel form-panel" method="post" enctype="multipart/form-data">
+    <div class="panel-header">
+      <div><div class="eyebrow">STEP 01</div><h2>Choose timing image</h2></div>
+      <span class="panel-index">PNG · JPG · WEBP</span>
+    </div>
+    <label class="file-drop" for="timing-image">
+      <span class="upload-icon">⇧</span>
+      <b id="image-name">Choose a timing-sheet image</b>
+      <small>Clear, straight-on images work best · Maximum 8 MB</small>
+      <span class="button button-ghost button-small">Browse image</span>
+      <input id="timing-image" type="file" name="image" accept=".png,.jpg,.jpeg,.webp,.bmp,image/*" required>
+    </label>
+    <div class="form-footer">
+      <span class="muted small-text">Nothing is saved until you review and confirm the extracted rows.</span>
+      <button class="button button-primary" type="submit">Read timing sheet →</button>
+    </div>
+  </form>
+  <section class="panel guide-panel">
+    <div class="panel-header"><div><div class="eyebrow">HOW IT WORKS</div><h2>From photo to lap log</h2></div></div>
+    <div class="guide-list image-steps">
+      <div><span class="guide-check">1</span><span><b>Upload your screenshot or photo</b><small>Use a readable timing screen or printed results sheet.</small></span></div>
+      <div><span class="guide-check">2</span><span><b>Review the detected rows</b><small>Correct driver names, lap times and lap numbers. OCR can misread characters.</small></span></div>
+      <div><span class="guide-check">3</span><span><b>Save into a session</b><small>Add results to an existing session or create a new one.</small></span></div>
+    </div>
+    <div class="session-note"><span class="note-icon">i</span><div><b>Important</b><p>The first time found on each detected text line is treated as that row's lap time. Sector values are not guessed automatically—enter them during review if your sheet shows them.</p></div></div>
+  </section>
+</div>
+<script>
+document.getElementById('timing-image').addEventListener('change', function () {
+  document.getElementById('image-name').textContent =
+    this.files && this.files.length ? this.files[0].name : 'Choose a timing-sheet image';
+});
+</script>
+{% endblock %}

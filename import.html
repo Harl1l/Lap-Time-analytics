@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Import Data · HG Lap Analytics{% endblock %}
+{% block crumb %}IMPORT DATA{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> BRING YOUR DATA IN</div><h1>Import <em>timing data</em></h1><p class="muted">Bring lap sheets from timing software, spreadsheets or your own logger.</p></div><a class="button button-primary" href="{{ url_for('import_image') }}">▧ Upload photo / screenshot</a></div>
+<div class="split-layout import-layout">
+  <form class="panel form-panel" method="post" enctype="multipart/form-data">
+    <div class="panel-header"><div><div class="eyebrow">CSV IMPORT</div><h2>Upload lap data</h2></div><span class="panel-index">CSV</span></div>
+    <label class="file-drop" for="file-input"><span class="upload-icon">⇧</span><b>Choose a CSV file</b><small>Comma-separated values · UTF-8</small><span class="button button-ghost button-small">Browse files</span><input id="file-input" type="file" name="file" accept=".csv,text/csv" required></label>
+    <div class="form-grid">
+      <label class="check-field field-wide"><input type="checkbox" name="create_session" id="create-session" checked><span><b>Create a new session</b><small>Turn this import into a new session record.</small></span></label>
+      <div id="new-session-fields" class="form-grid field-wide">
+        <label class="field field-wide"><span>New session name</span><input name="new_session_name" placeholder="e.g. Race 2 — Qualifying"></label>
+        <label class="field"><span>Track</span><input name="track" placeholder="Track / circuit"></label>
+        <label class="field"><span>Discipline</span><select name="discipline">{% for d in ['Karting','Car racing','Track day','Sim racing','Motorcycle','Other'] %}<option>{{ d }}</option>{% endfor %}</select></label>
+        <label class="field"><span>Date</span><input type="date" name="session_date" value="{{ today }}"></label>
+        <label class="field"><span>Conditions</span><input name="conditions" placeholder="Dry, wet, tyre choice..."></label>
+      </div>
+      <label class="field field-wide" id="existing-session-field" hidden><span>Existing session</span><select name="session_id">{% for s in sessions %}<option value="{{ s.id }}">{{ s.session_date }} · {{ s.name }}{% if s.track %} — {{ s.track }}{% endif %}</option>{% endfor %}</select></label>
+    </div>
+    <div class="form-footer"><span class="muted small-text">Rows without a valid lap time are skipped.</span><button class="button button-primary" type="submit">Import laps <span>→</span></button></div>
+  </form>
+  <section class="panel guide-panel">
+    <div class="panel-header"><div><div class="eyebrow">FORMAT GUIDE</div><h2>CSV columns</h2></div></div>
+    <p class="muted">Use these headers for the most reliable import. Header names are case-insensitive.</p>
+    <div class="code-preview"><div class="code-header"><span class="tiny-dot red"></span><span class="tiny-dot yellow"></span><span class="tiny-dot green"></span><span>timing-data.csv</span></div><pre>driver,car,lap_number,lap_time,s1,s2,s3
+Alex,GT3,1,1:31.234,30.100,30.500,30.634
+Alex,GT3,2,91.120,30.000,30.400,30.720
+Sam,GT3,1,1:32.010,30.400,30.700,30.910</pre></div>
+    <div class="guide-list"><div><span class="guide-check">✓</span><span><b>Flexible time formats</b><small>91.234, 1:31.234 or 1:02:31.234</small></span></div><div><span class="guide-check">✓</span><span><b>Optional telemetry fields</b><small>fuel, speed, valid, notes</small></span></div><div><span class="guide-check">✓</span><span><b>Sector analysis</b><small>Use s1 / s2 / s3 or sector_1 / sector_2 / sector_3</small></span></div></div>
+  </section>
+</div>
+{% endblock %}

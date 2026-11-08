@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}HG Lap Analytics{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="{{ url_for('dashboard') }}">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span><b>HG</b><small>LAP ANALYTICS</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="nav">
+        <a class="{% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span class="nav-icon">▦</span> Overview</a>
+        <a class="{% if request.endpoint in ['sessions','new_session','session_detail'] %}active{% endif %}" href="{{ url_for('sessions') }}"><span class="nav-icon">◷</span> Sessions</a>
+        <a class="{% if request.endpoint == 'analytics' %}active{% endif %}" href="{{ url_for('analytics') }}"><span class="nav-icon">⌁</span> Analytics</a>
+        <a class="{% if request.endpoint == 'import_csv' %}active{% endif %}" href="{{ url_for('import_csv') }}"><span class="nav-icon">⇧</span> Import data</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="status-dot"></div><span>LOCAL DATABASE</span>
+        <small>Your data stays on this machine.</small>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand">HG <span> / LAP ANALYTICS</span></div>
+        <div class="breadcrumb">MOTORSPORT <span>/</span> {% block crumb %}OVERVIEW{% endblock %}</div>
+        <div class="top-actions">
+          <a class="button button-ghost button-small" href="{{ url_for('export_csv') }}">↓ <span>Export CSV</span></a>
+          <a class="button button-primary button-small" href="{{ url_for('new_session') }}">＋ <span>New session</span></a>
+        </div>
+      </header>
+      <section class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-stack">
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}<button type="button" class="flash-close" aria-label="Dismiss">×</button></div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </section>
+      <footer class="footer"><span>HG LAP ANALYTICS &copy; {{ year }}</span><span>BUILT FOR THE PURSUIT OF EVERY MILLISECOND <b>◆</b></span></footer>
+    </main>
+  </div>
+</body>
+</html>

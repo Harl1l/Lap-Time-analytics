@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Review OCR Results · HG Lap Analytics{% endblock %}
+{% block crumb %}REVIEW OCR{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-line"></span> STEP 02 · VERIFY BEFORE SAVING</div>
+    <h1>Review extracted <em>results</em></h1>
+    <p class="muted">Source: {{ source_name }} · {{ rows|length }} candidate row(s). Check every value; the OCR result is only a suggestion.</p>
+  </div>
+  <a class="button button-ghost" href="{{ url_for('import_image') }}">← Upload another</a>
+</div>
+<form class="panel form-panel" method="post" action="{{ url_for('save_image_results') }}">
+  <div class="panel-header">
+    <div><div class="eyebrow">DESTINATION</div><h2>Choose session</h2></div>
+    <span class="panel-index">REQUIRED</span>
+  </div>
+  <div class="form-grid" style="padding:20px">
+    <label class="check-field field-wide">
+      <input type="checkbox" name="create_session" id="create-session" checked>
+      <span><b>Create a new session</b><small>Recommended if this image is from a separate race or practice session.</small></span>
+    </label>
+    <div id="new-session-fields" class="form-grid field-wide">
+      <label class="field field-wide"><span>Session name</span><input name="new_session_name" placeholder="e.g. Saturday Heat 2 results"></label>
+      <label class="field"><span>Track / circuit</span><input name="track" placeholder="Track name"></label>
+      <label class="field"><span>Discipline</span><select name="discipline">{% for d in ['Karting','Car racing','Track day','Sim racing','Motorcycle','Other'] %}<option {% if d == 'Karting' %}selected{% endif %}>{{ d }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Date</span><input type="date" name="session_date" value="{{ today }}"></label>
+      <label class="field"><span>Conditions</span><input name="conditions" placeholder="Dry / wet / tyres"></label>
+    </div>
+    <label class="field field-wide" id="existing-session-field" hidden>
+      <span>Existing session</span>
+      <select name="session_id" {% if not sessions %}disabled{% endif %}>
+        {% for s in sessions %}<option value="{{ s.id }}">{{ s.session_date }} · {{ s.name }}{% if s.track %} — {{ s.track }}{% endif %}</option>{% endfor %}
+      </select>
+      {% if not sessions %}<small>No sessions exist yet. Keep “Create a new session” selected.</small>{% endif %}
+    </label>
+  </div>
+  <div class="panel-header">
+    <div><div class="eyebrow">OCR CANDIDATES</div><h2>Detected lap rows <span class="count-chip">{{ rows|length }}</span></h2></div>
+    <span class="panel-index">EDITABLE</span>
+  </div>
+  <div class="table-scroll">
+    <table class="ocr-review-table">
+      <thead><tr><th>DRIVER / NAME</th><th>KART / CAR</th><th>LAP #</th><th>LAP TIME</th><th>SECTOR 1</th><th>SECTOR 2</th><th>SECTOR 3</th><th>VALID?</th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+      <tr>
+        <td><input class="review-input driver-input" name="driver[]" value="{{ row.driver }}" required aria-label="Driver name"></td>
+        <td><input class="review-input" name="car[]" value="{{ row.car }}" aria-label="Kart or car"></td>
+        <td><input class="review-input short-input" name="lap_number[]" value="{{ row.lap_number }}" inputmode="numeric" required aria-label="Lap number"></td>
+        <td><input class="review-input time-input" name="lap_time[]" value="{{ row.lap_time }}" required aria-label="Lap time"></td>
+        <td><input class="review-input time-input" name="s1[]" value="{{ row.s1 }}" aria-label="Sector 1"></td>
+        <td><input class="review-input time-input" name="s2[]" value="{{ row.s2 }}" aria-label="Sector 2"></td>
+        <td><input class="review-input time-input" name="s3[]" value="{{ row.s3 }}" aria-label="Sector 3"></td>
+        <td><select class="review-input valid-input" name="valid[]" aria-label="Valid lap"><option value="on" selected>Yes</option><option value="off">No</option></select></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="form-footer" style="margin:0;padding:18px 20px">
+    <span class="muted small-text">Accepted time formats: 91.234 or 1:31.234. Rows with invalid times are skipped.</span>
+    <button class="button button-primary" type="submit">Confirm and save results →</button>
+  </div>
+</form>
+<details class="panel raw-ocr-panel">
+  <summary>View raw OCR text (for troubleshooting)</summary>
+  <pre>{{ raw_text }}</pre>
+</details>
+<script>
+const createSession = document.getElementById('create-session');
+const newFields = document.getElementById('new-session-fields');
+const existingField = document.getElementById('existing-session-field');
+function updateSessionFields() {
+  newFields.hidden = !createSession.checked;
+  existingField.hidden = createSession.checked;
+  const existingSelect = existingField.querySelector('select');
+  if (existingSelect) existingSelect.required = !createSession.checked && !existingSelect.disabled;
+}
+createSession.addEventListener('change', updateSessionFields);
+updateSessionFields();
+</script>
+{% endblock %}

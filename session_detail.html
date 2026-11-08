@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ session.name }} · HG Lap Analytics{% endblock %}
+{% block crumb %}SESSION DETAIL{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> {{ session.discipline|upper }} · {{ session.session_date }}</div><h1>{{ session.name }}</h1><p class="muted">{{ session.track or 'Track not specified' }}{% if session.conditions %} <span class="separator">/</span> {{ session.conditions }}{% endif %}</p></div><div class="button-row"><a class="button button-ghost" href="{{ url_for('import_csv') }}">⇧ Import laps</a><a class="button button-primary" href="#add-lap">＋ Add lap</a></div></div>
+<div class="split-layout">
+  <section class="panel form-panel" id="add-lap">
+    <div class="panel-header"><div><div class="eyebrow">MANUAL ENTRY</div><h2>Record a lap</h2></div><span class="panel-index">01 / LAP LOG</span></div>
+    <form method="post" action="{{ url_for('add_lap', session_id=session.id) }}">
+      <div class="form-grid">
+        <label class="field"><span>Driver *</span><input name="driver" required list="driver-list" placeholder="Driver name"><datalist id="driver-list">{% for d in drivers %}<option value="{{ d }}">{% endfor %}</datalist></label>
+        <label class="field"><span>Car / kart</span><input name="car" placeholder="Vehicle or setup"></label>
+        <label class="field"><span>Lap number *</span><input type="number" name="lap_number" min="1" value="{{ (laps|length) + 1 }}" required></label>
+        <label class="field"><span>Lap time *</span><input name="lap_time" required placeholder="1:31.234" inputmode="decimal"><small>Seconds or M:SS.sss</small></label>
+        <label class="field"><span>Sector 1</span><input name="s1" placeholder="30.100" inputmode="decimal"></label>
+        <label class="field"><span>Sector 2</span><input name="s2" placeholder="30.500" inputmode="decimal"></label>
+        <label class="field"><span>Sector 3</span><input name="s3" placeholder="30.634" inputmode="decimal"></label>
+        <label class="field"><span>Fuel (optional)</span><input name="fuel" type="number" min="0" step="0.1" placeholder="42.0"></label>
+        <label class="field"><span>Max speed (optional)</span><input name="speed" type="number" min="0" step="0.1" placeholder="218.5"></label>
+        <label class="field field-wide"><span>Lap notes</span><input name="notes" placeholder="Traffic, track limits, setup changes..."></label>
+        <label class="check-field field-wide"><input type="checkbox" name="valid" checked><span><b>Valid lap</b><small>Untick for invalid laps, track limits or interrupted runs.</small></span></label>
+      </div>
+      <div class="form-footer"><span class="muted small-text">Saved directly to your local database.</span><button class="button button-primary" type="submit">Save lap <span>→</span></button></div>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="panel-header"><div><div class="eyebrow">DRIVER STANDINGS</div><h2>Session pace</h2></div></div>
+    {% if best_by_driver %}<div class="driver-rank-list">{% for d in best_by_driver %}<div class="driver-rank"><div class="rank-number">{{ "%02d"|format(loop.index) }}</div><div class="rank-info"><b>{{ d.driver }}</b><small>{{ d.laps }} valid lap{{ '' if d.laps == 1 else 's' }} · avg {{ d.avg_time }}</small></div><div class="rank-time mono">{{ d.best_time }}</div></div>{% endfor %}</div>{% else %}<div class="empty-inline">Driver standings appear after you add valid laps.</div>{% endif %}
+    <div class="session-note"><span class="note-icon">i</span><div><b>Analysis tip</b><p>Record all three sectors to compare sector pace and calculate the theoretical best lap in Analytics.</p></div></div>
+  </section>
+</div>
+<section class="panel table-panel">
+  <div class="panel-header"><div><div class="eyebrow">SESSION LOG</div><h2>Recorded laps <span class="count-chip">{{ laps|length }}</span></h2></div><a class="text-link" href="{{ url_for('analytics') }}">Analyse laps ↗</a></div>
+  {% if laps %}<div class="table-scroll"><table><thead><tr><th>DRIVER</th><th>CAR</th><th>LAP</th><th>LAP TIME</th><th>SECTOR 1</th><th>SECTOR 2</th><th>SECTOR 3</th><th>STATUS</th><th></th></tr></thead><tbody>
+  {% for l in laps %}<tr><td class="table-primary">{{ l.driver }}</td><td>{{ l.car or '—' }}</td><td>{{ l.lap_number }}</td><td class="mono {% if l.valid %}best-cell{% endif %}">{{ l.lap_time }}</td><td class="mono">{{ l.s1_time }}</td><td class="mono">{{ l.s2_time }}</td><td class="mono">{{ l.s3_time }}</td><td><span class="badge {% if l.valid %}badge-green{% else %}badge-red{% endif %}">{{ 'VALID' if l.valid else 'INVALID' }}</span></td><td><form method="post" action="{{ url_for('delete_lap', lap_id=l.id) }}" data-confirm="Delete this lap permanently?"><button class="icon-button danger" title="Delete lap" aria-label="Delete lap">×</button></form></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty-state compact"><div class="empty-graphic">◷</div><h3>No laps recorded yet</h3><p>Use the lap form above or import a CSV timing file.</p></div>{% endif %}
+</section>
+<div class="danger-zone"><form method="post" action="{{ url_for('delete_session', session_id=session.id) }}" data-confirm="Delete this session and every lap in it? This cannot be undone."><button class="button button-danger button-small" type="submit">Delete session</button></form></div>
+{% endblock %}

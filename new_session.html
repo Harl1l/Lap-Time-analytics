@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}New Session · HG Lap Analytics{% endblock %}
+{% block crumb %}NEW SESSION{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> NEW RECORD</div><h1>Create a <em>session</em></h1><p class="muted">Set the scene before chasing the lap time.</p></div></div>
+<form class="panel form-panel" method="post">
+  <div class="panel-header"><div><div class="eyebrow">SESSION DETAILS</div><h2>Session profile</h2></div><span class="required-note">* Required fields</span></div>
+  <div class="form-grid">
+    <label class="field field-wide"><span>Session name *</span><input name="name" required maxlength="120" placeholder="e.g. Friday Practice — Run 1" value="{{ request.form.get('name','') }}"></label>
+    <label class="field"><span>Track / circuit</span><input name="track" maxlength="120" placeholder="e.g. Brands Hatch" value="{{ request.form.get('track','') }}"></label>
+    <label class="field"><span>Discipline</span><select name="discipline">{% for d in ['Karting','Car racing','Track day','Sim racing','Motorcycle','Other'] %}<option {% if request.form.get('discipline','Karting') == d %}selected{% endif %}>{{ d }}</option>{% endfor %}</select></label>
+    <label class="field"><span>Session date *</span><input type="date" name="session_date" required value="{{ request.form.get('session_date',today) }}"></label>
+    <label class="field"><span>Conditions</span><input name="conditions" maxlength="160" placeholder="e.g. Dry, 18°C, medium tyres" value="{{ request.form.get('conditions','') }}"></label>
+    <label class="field field-wide"><span>Notes</span><textarea name="notes" rows="3" placeholder="Setup notes, tyre age, track changes...">{{ request.form.get('notes','') }}</textarea></label>
+  </div>
+  <div class="form-footer"><a class="button button-ghost" href="{{ url_for('sessions') }}">Cancel</a><button class="button button-primary" type="submit">Create session <span>→</span></button></div>
+</form>
+{% endblock %}

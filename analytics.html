@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Analytics · HG Lap Analytics{% endblock %} 
+{% block crumb %}ANALYTICS{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-line"></span> THE DATA BEHIND THE DRIVE
+      </div>
+        <h1>Performance <em>analytics</em></h1>
+        <p class="muted">Find your pace, compare drivers and uncover where time is won.</p>
+      </div>
+      <a class="button button-ghost" href="{{ url_for('export_csv') }}">↓ Export data</a>
+    </div>
+<div class="filter-bar panel">
+  <label class="field"><span>Driver filter</span><select id="filter-driver"><option value="">All drivers</option>{% for d in drivers %}<option>{{ d }}</option>{% endfor %}</select></label>
+  <label class="field"><span>Track filter</span><select id="filter-track"><option value="">All tracks</option>{% for t in tracks %}<option>{{ t }}</option>{% endfor %}</select></label>
+  <div class="filter-hint"><span class="tiny-dot green"></span> <span id="analysis-count">Loading recorded laps…</span></div>
+</div>
+<div class="stat-grid analytics-stats">
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">FASTEST VALID LAP</span><span class="stat-icon accent">◷</span></div><div class="stat-value" id="metric-best">—</div><div class="stat-foot">Filtered data</div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">AVERAGE LAP</span><span class="stat-icon">∿</span></div><div class="stat-value" id="metric-avg">—</div><div class="stat-foot">Valid laps only</div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">THEORETICAL BEST</span><span class="stat-icon">⌁</span></div><div class="stat-value" id="metric-theoretical">—</div><div class="stat-foot">Best sector 1 + 2 + 3</div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">TIME TO FIND</span><span class="stat-icon">↘</span></div><div class="stat-value" id="metric-gap">—</div><div class="stat-foot">Average minus best lap</div></article>
+</div>
+<div class="dashboard-grid analytics-grid">
+  <section class="panel chart-panel"><div class="panel-header"><div><div class="eyebrow">LAP BY LAP</div><h2>Lap-time progression</h2></div><span class="pill">Seconds</span></div><div class="chart-wrap"><canvas id="lapProgression"></canvas><div class="chart-empty" id="progression-empty" hidden>No lap data for these filters.</div></div></section>
+  <section class="panel chart-panel"><div class="panel-header"><div><div class="eyebrow">SECTOR ANALYSIS</div><h2>Sector pace</h2></div><span class="pill">Best valid sectors</span></div><div class="chart-wrap"><canvas id="sectorChart"></canvas><div class="chart-empty" id="sector-empty" hidden>Record sector times to unlock this chart.</div></div></section>
+</div>
+<div class="dashboard-grid analytics-grid">
+  <section class="panel table-panel"><div class="panel-header"><div><div class="eyebrow">HEAD-TO-HEAD</div><h2>Driver comparison</h2></div></div><div class="table-scroll"><table><thead><tr><th>DRIVER</th><th>LAPS</th><th>BEST LAP</th><th>AVERAGE</th><th>CONSISTENCY σ</th></tr></thead><tbody id="driver-comparison"><tr><td colspan="5" class="muted">Loading comparison…</td></tr></tbody></table></div></section>
+  <section class="panel table-panel"><div class="panel-header"><div><div class="eyebrow">RECORD HOLDERS</div><h2>Personal bests</h2></div></div><div class="table-scroll"><table><thead><tr><th>DRIVER</th><th>BEST LAP</th><th>LAPS</th></tr></thead><tbody id="personal-bests"><tr><td colspan="3" class="muted">Loading personal bests…</td></tr></tbody></table></div></section>
+</div>
+<section class="panel table-panel"><div class="panel-header"><div><div class="eyebrow">LAP TRACE</div><h2>Filtered lap data</h2></div><span class="pill" id="lap-table-count">0 laps</span></div><div class="table-scroll"><table><thead><tr><th>DATE</th><th>SESSION</th><th>DRIVER</th><th>LAP</th><th>TIME</th><th>S1</th><th>S2</th><th>S3</th><th>STATUS</th></tr></thead><tbody id="lap-table-body"><tr><td colspan="9" class="muted">Loading…</td></tr></tbody></table></div></section>
+{% endblock %}
+{% block head %}<script>window.APEX_ANALYTICS_URL = {{ url_for('analytics_api')|tojson }};</script>{% endblock %}

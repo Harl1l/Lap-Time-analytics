@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Overview · HG Lap Analytics{% endblock %}
+{% block crumb %}OVERVIEW{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR RACING, DECODED</div><h1>Performance <em>overview</em></h1><p class="muted">Your track data at a glance. Find the time, then find more.</p></div>
+  <a class="button button-primary" href="{{ url_for('new_session') }}">＋ Create session</a>
+</div>
+<div class="stat-grid">
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">FASTEST LAP</span><span class="stat-icon accent">◷</span></div><div class="stat-value">{{ best }}</div><div class="stat-foot"><span class="tiny-dot green"></span> All valid recorded laps</div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">LAPS RECORDED</span><span class="stat-icon">↗</span></div><div class="stat-value">{{ "{:,}".format(lap_count) }}</div><div class="stat-foot">Across all sessions</div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">SESSIONS</span><span class="stat-icon">▤</span></div><div class="stat-value">{{ session_count }}</div><div class="stat-foot">Saved in your library</div></article>
+  <article class="stat-card"><div class="stat-top"><span class="stat-label">DRIVERS</span><span class="stat-icon">♙</span></div><div class="stat-value">{{ driver_count }}</div><div class="stat-foot">Unique driver profiles</div></article>
+</div>
+<div class="dashboard-grid">
+  <section class="panel chart-panel">
+    <div class="panel-header"><div><div class="eyebrow">PACE DEVELOPMENT</div><h2>Best lap trend</h2></div><span class="pill"><span class="tiny-dot green"></span> Session bests</span></div>
+    {% if trend %}
+      <div class="chart-wrap"><canvas id="overviewTrend"></canvas></div>
+      <script id="trend-data" type="application/json">{{ trend|tojson }}</script>
+    {% else %}
+      <div class="empty-state"><div class="empty-graphic">⌁</div><h3>Your progress starts here</h3><p>Add a session and record laps to see your pace trend.</p><a class="button button-primary" href="{{ url_for('new_session') }}">Create first session</a></div>
+    {% endif %}
+  </section>
+  <section class="panel quick-panel">
+    <div class="panel-header"><div><div class="eyebrow">QUICK ACTIONS</div><h2>Track day tools</h2></div></div>
+    <a class="action-row" href="{{ url_for('new_session') }}"><span class="action-icon">＋</span><span><b>Start a session</b><small>Create a new track or sim session</small></span><span class="arrow">↗</span></a>
+    <a class="action-row" href="{{ url_for('import_csv') }}"><span class="action-icon">⇧</span><span><b>Import timing data</b><small>Load laps from a CSV file</small></span><span class="arrow">↗</span></a>
+    <a class="action-row" href="{{ url_for('analytics') }}"><span class="action-icon">⌁</span><span><b>Compare performance</b><small>Find best sectors and consistency</small></span><span class="arrow">↗</span></a>
+    <div class="quote-strip"><span>“</span><div><b>Every millisecond tells a story.</b><small>Read the data. Refine the line.</small></div></div>
+  </section>
+</div>
+<section class="panel table-panel">
+  <div class="panel-header"><div><div class="eyebrow">RECENT ACTIVITY</div><h2>Latest sessions</h2></div><a class="text-link" href="{{ url_for('sessions') }}">View all sessions ↗</a></div>
+  {% if recent_sessions %}
+  <div class="table-scroll"><table><thead><tr><th>SESSION</th><th>TRACK</th><th>DATE</th><th>LAPS</th><th>BEST LAP</th><th></th></tr></thead><tbody>
+  {% for s in recent_sessions %}<tr><td><a class="table-primary" href="{{ url_for('session_detail', session_id=s.id) }}">{{ s.name }}</a><small class="table-sub">{{ s.discipline }}</small></td><td>{{ s.track or '—' }}</td><td>{{ s.session_date }}</td><td>{{ s.lap_count }}</td><td class="mono best-cell">{{ s.best_time }}</td><td><a class="row-arrow" href="{{ url_for('session_detail', session_id=s.id) }}">↗</a></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<div class="empty-inline">No sessions yet. <a href="{{ url_for('new_session') }}">Create your first session →</a></div>{% endif %}
+</section>
+<section class="panel table-panel">
+  <div class="panel-header"><div><div class="eyebrow">LATEST LAPS</div><h2>Recent lap entries</h2></div><a class="text-link" href="{{ url_for('analytics') }}">Open analytics ↗</a></div>
+  {% if recent_laps %}<div class="table-scroll"><table><thead><tr><th>DRIVER</th><th>SESSION</th><th>LAP</th><th>TIME</th><th>SECTORS</th><th>STATUS</th></tr></thead><tbody>
+  {% for l in recent_laps %}<tr><td class="table-primary">{{ l.driver }}</td><td>{{ l.session_name }}</td><td>{{ l.lap_number }}</td><td class="mono {% if l.valid %}best-cell{% endif %}">{{ l.lap_time }}</td><td class="mono small-mono">{{ l.s1_time }} / {{ l.s2_time }} / {{ l.s3_time }}</td><td><span class="badge {% if l.valid %}badge-green{% else %}badge-red{% endif %}">{{ 'VALID' if l.valid else 'INVALID' }}</span></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty-inline">Your recorded laps will appear here.</div>{% endif %}
+</section>
+{% endblock %}
