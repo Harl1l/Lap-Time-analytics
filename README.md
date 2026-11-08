@@ -5,7 +5,7 @@ Make sure the files are stored correctly in folders
 static --> css --> style.css
        --> js  --> app.js
 Templates --> all .html files
-Rest of files
+Rest of files in main folder
 
 Any feedback or feature requests are welcome 
 thanks 
